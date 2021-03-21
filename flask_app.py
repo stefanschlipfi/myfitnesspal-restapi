@@ -77,29 +77,14 @@ def progress_today():
         ### calculate progress ###
         progress = dict()
         for item in today.goals.keys():
-            progress.update({item:today.totals[item] - today.goals[item]})
+            try:
+                p = today.totals[item] - today.goals[item]
+            except KeyError:
+                p = 0 - today.goals[item]
+            finally:
+                progress.update({item:p})
 
         return flask.jsonify(progress)
-
-@app.route("/next/",methods=["GET"])
-def get_next():
-    garbage_list = load_json()
-
-    """
-    get now
-    """
-    now = datetime.now()
-
-    """
-    get next item and return it
-    """
-    for item in garbage_list:
-        if item['date'] < now:
-            continue
-        if item['date'] >= now:
-            d = item.copy()
-            d.update({'remaining_time': humanize.precisedelta(item['date'] - now,minimum_unit="hours")})
-            return flask.jsonify(d)
 
 
 if __name__ == '__main__':
